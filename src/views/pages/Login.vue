@@ -2,20 +2,24 @@
   <div class="c-app flex-row align-items-center">
     <CContainer>
       <CRow class="justify-content-center">
-        <CCol md="8">
+        <CCol md="5">
           <CCardGroup>
             <CCard class="p-4">
               <CCardBody>
-                <CForm>
+                <CForm @submit="login">
                   <h1>Login</h1>
                   <p class="text-muted">Iniciar sesion en su cuenta</p>
                   <CInput
+                    v-model="Username"
+                    id="Username"
                     placeholder="Username"
                     autocomplete="username email"
                   >
                     <template #prepend-content><CIcon name="cil-user"/></template>
                   </CInput>
                   <CInput
+                    v-model="Password"
+                    id="Password"
                     placeholder="Password"
                     type="password"
                     autocomplete="curent-password"
@@ -24,7 +28,7 @@
                   </CInput>
                   <CRow>
                     <CCol col="6" class="text-left">
-                      <CButton color="primary" class="px-4">Acceder</CButton>
+                      <CButton type="submit" color="primary" class="px-4">Acceder</CButton>
                     </CCol>
                     <CCol col="6" class="text-right">
                       <CButton color="link" class="px-0">Olvido su contraseña?</CButton>
@@ -32,24 +36,6 @@
                     </CCol>
                   </CRow>
                 </CForm>
-              </CCardBody>
-            </CCard>
-            <CCard
-              color="primary"
-              text-color="white"
-              class="text-center py-5 d-md-down-none"
-              body-wrapper
-            >
-              <CCardBody>
-                <h2>Iniciar Sesion</h2>
-                <p></p>
-                <CButton
-                  color="light"
-                  variant="outline"
-                  size="lg"
-                >
-                  Registrate Ahora!
-                </CButton>
               </CCardBody>
             </CCard>
           </CCardGroup>
@@ -60,7 +46,39 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import axios from 'axios';
+import vueAxios from 'vue-axios';
+Vue.use(vueAxios, axios);
 export default {
-  name: 'Login'
+  name: 'Login',
+
+  data() {
+    return {
+      Username: "",
+      Password: ""
+    }
+  },
+  
+  methods: {
+    login(e) { 
+      try {
+        const resp = Vue.axios.post("http://localhost:3000/api/auth/login", {
+          username: this.Username,
+          password: this.Password
+        }).then((resp) => {
+          const { status, message, data } = resp.data
+          if (status && status == "success"){
+            const API_KEY = this.$cookies.get("CDS_BACKEND_API");
+            console.warn(API_KEY)
+            localStorage.setItem('access_token', data.access_token)
+            this.$router.push({ name: 'Home' })
+          }
+        });
+      } catch(error) {
+        console.log(error);
+      }
+    }
+  }
 }
 </script>

@@ -34,7 +34,7 @@ export default [
       {
         _name: 'CSidebarNavItem',
         name: 'Compañias',
-        to: '/theme/compañias',
+        to: '/theme/companias',
         icon: 'cil-user'
       },
       {

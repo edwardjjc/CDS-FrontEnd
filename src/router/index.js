@@ -7,10 +7,13 @@ const TheContainer = () => import('@/containers/TheContainer')
 // Views
 const Dashboard = () => import('@/views/Dashboard')
 
+// Modules
+const Companias = () => import('@/views/modules/companias/companias')
+const CompaniaDetail = () => import('@/views/modules/companias/compania-detail')
+
 const Rutas = () => import('@/views/theme/Rutas')
 const Historial = () => import('@/views/theme/Historial')
 const Camiones = () => import('@/views/theme/Camiones')
-const Compañias = () => import('@/views/theme/Compañias')
 const Contenedores = () => import('@/views/theme/Contenedores')
 const Dispositivos = () => import('@/views/theme/Dispositivos')
 /* const Colors = () => import('@/views/theme/Colors') */
@@ -109,9 +112,14 @@ function configRoutes () {
               component: Camiones
             },
             {
-              path: 'compañias',
-              name: 'Compañias',
-              component: Compañias
+              path: 'companias',
+              name: 'Companias',
+              component: Companias
+            },
+            {
+              path: 'companias-detail/:id',
+              name: 'Compania',
+              component: CompaniaDetail
             },
             {
               path: 'contenedores',
