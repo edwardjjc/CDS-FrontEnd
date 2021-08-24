@@ -1,13 +1,12 @@
 <template>
-  <div>
+      <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañias</h3>
+        <h3>Contenedores</h3>
       </div>
       <div class="card-body">
-      
         <div align="right">
-          <CButton align="justify-center" shape="pill" color="info" @click="createCompany">
+          <CButton align="justify-center" shape="pill" color="info" @click="createContenedor">
             <CIcon name="cil-plus"/>
           </CButton>
         </div>
@@ -24,6 +23,13 @@
             <td>
               <CBadge :color="getBadge(item.isActive)">
                 {{item.isActive ? "Activo" : "Inactivo"}}
+              </CBadge>
+            </td>
+          </template>
+          <template #pendienteRecoleccion="{item}">
+            <td>
+              <CBadge :color="getBadge(item.pendienteRecoleccion)">
+                {{item.pendienteRecoleccion ? "Pendiente Recoleccion" : "No Recolectable"}}
               </CBadge>
             </td>
           </template>
@@ -57,14 +63,15 @@
 
 <script>
 import Vue from 'vue';
-
 const items = [
 ]
 
 const fields = [
-  { key: 'descripcion', label: "Nombre Compañia", _style:'min-width:200px' },
-  { key: 'telefono', _style:'min-width:100px;' },
+  { key: 'descripcion', label: "Nombre Contenedor", _style:'min-width:200px' },
+  { key: 'gpsAltitude', _style:'min-width:100px;' },
+  { key: 'gpsLatitude', _style:'min-width:100px;' },
   { key: 'isActive', label: "Estatus", _style:'min-width:100px;' },
+  { key: 'pendienteRecoleccion', label: "Accion", _style:'min-width:100px;' },
   { 
     key: 'show_details', 
     label: '', 
@@ -75,25 +82,25 @@ const fields = [
 ]
 
 export default {
-  name: 'Compañias',
+  name: 'Contenedores',
   data() {
     return {
       items: items.map((item, id) => { return {...item, id}}),
       fields,
       details: [],
       collapseDuration: 0,
-      companias: undefined
+      contenedores: undefined
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
-    Vue.axios.get('http://localhost:3000/api/compania/', {
+    Vue.axios.get('http://localhost:3000/api/contenedores/', {
       headers: {
         'Authorization': `Bearer ${API_KEY}` 
       }
     }).
     then((resp) => {
-      this.companias = resp.data.data
+      this.contenedores = resp.data.data
       this.items = resp.data.data
     }).catch((error) => {
       if (error.toString().includes("401")){
@@ -110,11 +117,11 @@ export default {
       }
     },
     viewDetails (item) {
-      this.$router.push(`/mantenimientos/companias-detail/${item.id}`)
+      this.$router.push(`/mantenimientos/contenedores-detail/${item.id}`)
     },
     del (item) {
       const API_KEY = localStorage.access_token;
-      Vue.axios.delete('http://localhost:3000/api/compania/' + item.id, {
+      Vue.axios.delete('http://localhost:3000/api/contenedores/' + item.id, {
         headers: {
           'Authorization': `Bearer ${API_KEY}` 
         }
@@ -127,8 +134,8 @@ export default {
         }
       });
     },
-    createCompany(){
-      this.$router.push(`/mantenimientos/companias-detail/${"new"}`)
+    createContenedor(){
+      this.$router.push(`/mantenimientos/contenedores-detail/${"new"}`)
     }
 
   }

@@ -1,13 +1,12 @@
 <template>
-  <div>
+      <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañias</h3>
+        <h3>Camiones</h3>
       </div>
       <div class="card-body">
-      
         <div align="right">
-          <CButton align="justify-center" shape="pill" color="info" @click="createCompany">
+          <CButton align="justify-center" shape="pill" color="info" @click="createCamion">
             <CIcon name="cil-plus"/>
           </CButton>
         </div>
@@ -57,13 +56,16 @@
 
 <script>
 import Vue from 'vue';
-
 const items = [
 ]
 
 const fields = [
-  { key: 'descripcion', label: "Nombre Compañia", _style:'min-width:200px' },
-  { key: 'telefono', _style:'min-width:100px;' },
+  { key: 'descripcion', _style:'min-width:200px' },
+  { key: 'marca', _style:'min-width:100px;' },
+  { key: 'modelo', _style:'min-width:100px;' },
+  { key: 'placa', _style:'min-width:100px;' },
+  { key: 'color', _style:'min-width:100px;' },
+  { key: 'tipoCamion', label: "Tipo Camion", _style:'min-width:100px;' },
   { key: 'isActive', label: "Estatus", _style:'min-width:100px;' },
   { 
     key: 'show_details', 
@@ -75,26 +77,29 @@ const fields = [
 ]
 
 export default {
-  name: 'Compañias',
+  name: 'Camiones',
   data() {
     return {
       items: items.map((item, id) => { return {...item, id}}),
       fields,
       details: [],
       collapseDuration: 0,
-      companias: undefined
+      camiones: undefined,
+      companias: undefined,
+      tiposCamiones: undefined
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
-    Vue.axios.get('http://localhost:3000/api/compania/', {
+    Vue.axios.get('http://localhost:3000/api/camiones/', {
       headers: {
         'Authorization': `Bearer ${API_KEY}` 
       }
     }).
     then((resp) => {
-      this.companias = resp.data.data
-      this.items = resp.data.data
+      const { data } = resp.data;
+      this.camiones = data
+      this.items = data.map(obj => { return { id: obj.id, descripcion: obj.descripcion, marca: obj.marca, modelo: obj.modelo, placa: obj.identificadorUnico, color: obj.color, tipoCamion: obj.tipoCamion.descripcion, isActive: obj.isActive } })
     }).catch((error) => {
       if (error.toString().includes("401")){
         this.$router.push({ name: 'Login' })
@@ -110,11 +115,11 @@ export default {
       }
     },
     viewDetails (item) {
-      this.$router.push(`/mantenimientos/companias-detail/${item.id}`)
+      this.$router.push(`/mantenimientos/camiones-detail/${item.id}`)
     },
     del (item) {
       const API_KEY = localStorage.access_token;
-      Vue.axios.delete('http://localhost:3000/api/compania/' + item.id, {
+      Vue.axios.delete('http://localhost:3000/api/camiones/' + item.id, {
         headers: {
           'Authorization': `Bearer ${API_KEY}` 
         }
@@ -127,8 +132,8 @@ export default {
         }
       });
     },
-    createCompany(){
-      this.$router.push(`/mantenimientos/companias-detail/${"new"}`)
+    createCamion(){
+      this.$router.push(`/mantenimientos/camiones-detail/${"new"}`)
     }
 
   }

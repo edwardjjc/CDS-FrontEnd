@@ -1,13 +1,12 @@
 <template>
-  <div>
+      <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañias</h3>
+        <h3>Usuarios</h3>
       </div>
       <div class="card-body">
-      
         <div align="right">
-          <CButton align="justify-center" shape="pill" color="info" @click="createCompany">
+          <CButton align="justify-center" shape="pill" color="info" @click="createUsuario">
             <CIcon name="cil-plus"/>
           </CButton>
         </div>
@@ -57,13 +56,13 @@
 
 <script>
 import Vue from 'vue';
-
 const items = [
 ]
 
 const fields = [
-  { key: 'descripcion', label: "Nombre Compañia", _style:'min-width:200px' },
-  { key: 'telefono', _style:'min-width:100px;' },
+  { key: 'username', label: "Nombre Usuario", _style:'min-width:200px' },
+  { key: 'email', _style:'min-width:100px;' },
+  { key: 'perfil', _style:'min-width:100px;' },
   { key: 'isActive', label: "Estatus", _style:'min-width:100px;' },
   { 
     key: 'show_details', 
@@ -75,26 +74,27 @@ const fields = [
 ]
 
 export default {
-  name: 'Compañias',
+  name: 'Usuarios',
   data() {
     return {
       items: items.map((item, id) => { return {...item, id}}),
       fields,
       details: [],
       collapseDuration: 0,
-      companias: undefined
+      usuarios: undefined
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
-    Vue.axios.get('http://localhost:3000/api/compania/', {
+    Vue.axios.get('http://localhost:3000/api/usuarios/', {
       headers: {
         'Authorization': `Bearer ${API_KEY}` 
       }
     }).
     then((resp) => {
-      this.companias = resp.data.data
-      this.items = resp.data.data
+      this.usuarios = resp.data.data
+      console.log(resp.data.data)
+      this.items = resp.data.data.map(obj => { return { id: obj.id, username: obj.username, email: obj.email, perfil: obj.perfil.descripcion, isActive: obj.isActive } })
     }).catch((error) => {
       if (error.toString().includes("401")){
         this.$router.push({ name: 'Login' })
@@ -110,11 +110,11 @@ export default {
       }
     },
     viewDetails (item) {
-      this.$router.push(`/mantenimientos/companias-detail/${item.id}`)
+      this.$router.push(`/seguridad/usuarios-detail/${item.id}`)
     },
     del (item) {
       const API_KEY = localStorage.access_token;
-      Vue.axios.delete('http://localhost:3000/api/compania/' + item.id, {
+      Vue.axios.delete('http://localhost:3000/api/usuarios/' + item.id, {
         headers: {
           'Authorization': `Bearer ${API_KEY}` 
         }
@@ -127,8 +127,8 @@ export default {
         }
       });
     },
-    createCompany(){
-      this.$router.push(`/mantenimientos/companias-detail/${"new"}`)
+    createUsuario(){
+      this.$router.push(`/seguridad/usuarios-detail/${"new"}`)
     }
 
   }

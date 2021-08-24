@@ -46,6 +46,7 @@
           <CIcon name="cil-envelope-open"/>
         </CHeaderNavLink> -->
       </CHeaderNavItem>
+      <p>Bienvenido {{username}}!!!</p>
       <TheHeaderDropdownAccnt/>
     </CHeaderNav>
 <!--     <CSubheader class="px-3">
@@ -56,9 +57,19 @@
 
 <script>
 import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
+import jwt_decode from 'jwt-decode';
 
 export default {
   name: 'TheHeader',
+  data() {
+    return {
+      username: ""
+    }
+  },
+  mounted() {
+    let jwtData = jwt_decode(localStorage.access_token);
+    this.username = jwtData.username;
+  },
   components: {
     TheHeaderDropdownAccnt
   }

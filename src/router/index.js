@@ -8,14 +8,23 @@ const TheContainer = () => import('@/containers/TheContainer')
 const Dashboard = () => import('@/views/Dashboard')
 
 // Modules
+const Camiones = () => import('@/views/modules/camiones/camiones')
+const CamionesDetail = () => import('@/views/modules/camiones/camion-detail')
+const Configuraciones = () => import('@/views/modules/configuraciones/configuraciones')
 const Companias = () => import('@/views/modules/companias/companias')
 const CompaniaDetail = () => import('@/views/modules/companias/compania-detail')
+const Contenedores = () => import('@/views/modules/contenedores/contenedores')
+const ContenedoresDetail = () => import('@/views/modules/contenedores/contenedor-detail')
+const Dispositivos = () => import('@/views/modules/dispositivos-iot/dispositivos-iot')
+const DispositivosDetail = () => import('@/views/modules/dispositivos-iot/dispositivos-iot-detail')
+const Usuarios = () => import('@/views/modules/usuarios/usuarios')
+const UsuariosDetail = () => import('@/views/modules/usuarios/usuario-detail')
+const Rutas = () => import('@/views/modules/rutas/ruta')
+const Historial = () => import('@/views/modules/rutas/historial')
 
-const Rutas = () => import('@/views/theme/Rutas')
-const Historial = () => import('@/views/theme/Historial')
-const Camiones = () => import('@/views/theme/Camiones')
-const Contenedores = () => import('@/views/theme/Contenedores')
-const Dispositivos = () => import('@/views/theme/Dispositivos')
+//const Rutas = () => import('@/views/theme/Rutas')
+//const Historial = () => import('@/views/theme/Historial')
+//const Camiones = () => import('@/views/theme/Camiones')
 /* const Colors = () => import('@/views/theme/Colors') */
 
 /* const Charts = () => import('@/views/charts/Charts')
@@ -89,27 +98,40 @@ function configRoutes () {
           component: Dashboard
         },
         {
-          path: 'theme',
-          redirect: '/theme/colors',
-          name: 'Theme',
+          path: 'rutas',
+          name: 'Rutas',
           component: {
             render (c) { return c('router-view') }
           },
           children: [
             {
               path: 'rutas',
-              name: 'Rutas',
+              name: 'Ruta',
               component: Rutas
             },
             {
-              path: 'ver historial',
+              path: 'historial',
               name: 'Historial',
               component: Historial
-            },
+            }
+          ]
+        },
+        {
+          path: 'mantenimientos',
+          name: 'Mantenimientos',
+          component: {
+            render (c) { return c('router-view') }
+          },
+          children: [
             {
               path: 'camiones',
               name: 'Camiones',
               component: Camiones
+            },
+            {
+              path: 'camiones-detail/:id',
+              name: 'Camion',
+              component: CamionesDetail
             },
             {
               path: 'companias',
@@ -127,15 +149,44 @@ function configRoutes () {
               component: Contenedores
             },
             {
-              path: 'dispositivos iot',
+              path: 'contenedores-detail/:id',
+              name: 'Contenedor',
+              component: ContenedoresDetail
+            },
+            {
+              path: 'dispositivos-iot',
               name: 'Dispositivos',
               component: Dispositivos
             },
-/*             {
-              path: 'colors',
-              name: 'Colors',
-              component: Colors
-            } */
+            {
+              path: 'dispositivos-iot-detail/:id',
+              name: 'Dispositivo',
+              component: DispositivosDetail
+            }
+          ]
+        },
+        {
+          path: 'seguridad',
+          name: 'Seguridad',
+          component: {
+            render (c) { return c('router-view') }
+          },
+          children: [
+            {
+              path: 'usuarios',
+              name: 'Usuarios',
+              component: Usuarios
+            },
+            {
+              path: 'usuarios-detail/:id',
+              name: 'Usuario',
+              component: UsuariosDetail
+            },
+            {
+              path: 'configuraciones',
+              name: 'Configuraciones',
+              component: Configuraciones
+            },
           ]
         },
 /*         {
@@ -147,34 +198,8 @@ function configRoutes () {
           path: 'widgets',
           name: 'Widgets',
           component: Widgets
-        }, */
-        {
-          path: 'users',
-          meta: {
-            label: 'Users'
-          },
-          component: {
-            render(c) {
-              return c('router-view')
-            }
-          },
-          children: [
-            {
-              path: '',
-              name: 'Users',
-              component: Users
-            },
-            {
-              path: ':id',
-              meta: {
-                label: 'User Details'
-              },
-              name: 'User',
-              component: User
-            }
-          ]
         },
-/*         {
+        {
           path: 'base',
           redirect: '/base/cards',
           name: 'Base',

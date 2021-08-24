@@ -2,32 +2,32 @@
   <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañia</h3>
+        <h3>Contenedor</h3>
       </div>
       <div class="card-body">
         <CCard>
-            <CCardHeader>
-                <CRow>
-                    <CCol sm="6">
-                        <strong>Datos</strong>
-                    </CCol>
-                    <CCol sm="6">
-                        <CInput
-                            v-model="comp.id"
-                            horizontal
-                            plaintext
-                            align="right"
-                        />
-                    </CCol>
-                </CRow>
-            </CCardHeader>
-            <CCardBody>
-                <CForm @submit="guardar">
+            <CForm @submit="guardar">
+                <CCardHeader>
+                    <CRow>
+                        <CCol sm="6">
+                            <strong>Datos</strong>
+                        </CCol>
+                        <CCol sm="6">
+                            <CInput
+                                v-model="cont.id"
+                                horizontal
+                                plaintext
+                                align="right"
+                            />
+                        </CCol>
+                    </CRow>
+                </CCardHeader>
+                <CCardBody>
                     <CRow>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.descripcion"
-                                label="Nombre de la compañia"
+                                v-model="cont.descripcion"
+                                label="Nombre del Contenedor"
                                 horizontal
                                 autocomplete="name"
                             />
@@ -37,41 +37,67 @@
                                 </CCol>
                                 <CCol sm="9">
                                     <CSwitch
-                                        :checked.sync="comp.isActive"
+                                        :checked.sync="cont.isActive"
                                         class="mr-1"
                                         color="info"
                                         shape="pill"
                                         variant="outline"
                                     />
                                 </CCol>
+                                <CCol tag="label" sm="3" class="col-form-label">
+                                    Pentiente Recoleccion
+                                </CCol>
+                                <CCol sm="9">
+                                    <CSwitch
+                                        :checked.sync="cont.pendienteRecoleccion"
+                                        class="mr-1"
+                                        color="info"
+                                        shape="pill"
+                                        variant="outline"
+                                        disabled="true"
+                                    />
+                                </CCol>
                             </CRow>
                         </CCol>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.telefono"
-                                label="Telefono de la compañia"
+                                v-model="cont.gpsLatitude"
+                                label="Gps Latitude"
+                                horizontal
+                                autocomplete="name"
+                            />
+                            <CInput
+                                v-model="cont.gpsAltitude"
+                                label="Gps Altitude"
+                                horizontal
+                                autocomplete="name"
+                            />
+                            <CSelect
+                                :value.sync="cont.tipoContenedor.id"
+                                :options="tiposContenedores"
+                                label="Tipo Contenedor"
                                 horizontal
                                 autocomplete="name"
                             />
                         </CCol>
                     </CRow>
                     <CTextarea
-                        v-model="comp.direccion"
+                        v-model="cont.direccion"
                         label="Direccion"
                         placeholder="Content..."
                         horizontal
                         rows="3"
                     />
+                </CCardBody>
+                <CCardFooter>
                     <CButton type="submit" size="sm" color="primary">
-                        <CIcon name="cil-check-circle"/> Submit
+                        <CIcon name="cil-check-circle"/> Guardar
                     </CButton>
                     <CButton size="sm" color="danger" @click="volverAtras">
                         <CIcon name="cil-ban"/> Cancelar
                     </CButton>
-                </CForm>
-            </CCardBody>
-            <CCardFooter>
-            </CCardFooter>
+                </CCardFooter>
+            </CForm>
         </CCard>
         <CCard>
             <CButton
@@ -88,13 +114,13 @@
                     <CRow>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.createdBy"
+                                v-model="cont.createdBy"
                                 label="Creador"
                                 horizontal
                                 plaintext
                             />
                             <CInput
-                                v-model="comp.lastChangedBy"
+                                v-model="cont.lastChangedBy"
                                 label="Ultima Modificacion"
                                 horizontal
                                 plaintext
@@ -102,24 +128,25 @@
                         </CCol>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.createDateTime"
+                                v-model="cont.createDateTime"
                                 label="Fecha Creacion"
-                                type="date"
                                 horizontal
+                                plaintext
                             />
                             <CInput
-                                v-model="comp.lastChangedDateTime"
+                                v-model="cont.lastChangedDateTime"
                                 label="Fecha Ultima Modificacion"
-                                type="date"
                                 horizontal
+                                plaintext
                             />
                         </CCol>
                     </CRow>
                     <CTextarea
-                        v-model="comp.internalComment"
+                        v-model="cont.internalComment"
                         label="Comentarios"
-                        placeholder="Content..."
+                        placeholder=""
                         horizontal
+                        plaintext
                         rows="2"
                     />
                     <CRow form class="form-group">
@@ -130,7 +157,8 @@
                             <CSwitch
                                 class="mr-1"
                                 color="info"
-                                :checked="comp.isArchived"
+                                disabled="true"
+                                :checked="cont.isArchived"
                                 shape="pill"
                                 variant="outline"
                             />
@@ -146,51 +174,67 @@
 
 <script>
 import Vue from 'vue';
+let tiposContenedores=[];
 export default {
-  name: 'Companias-Detail',
+  name: 'Contenedor-Detail',
   data () {
     return {
       collapse: false,
       cardCollapse: false,
       innerCollapse: false,
       accordion: 0,
-      comp: {}
+      cont: {},
+      tiposContenedores: tiposContenedores.map((obj) => { return {label: obj.descripcion, value: obj.id} })
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
     const id = this.$route.params.id;
     if (id == "new"){
-        this.comp = {};
+        this.cont = { tipoContenedor: { id: "" } };
     } else {
-        Vue.axios.get('http://localhost:3000/api/compania/' + id, {
+        Vue.axios.get('http://localhost:3000/api/contenedores/' + id, {
             headers: {
                 'Authorization': `Bearer ${API_KEY}` 
             }
         }).
         then((resp) => {
             const { data } = resp.data;
-            this.comp = data;
+            console.log(data);
+            this.cont = data;
         }).catch((error) => {
             if (error.toString().includes("401")){
             this.$router.push({ name: 'Login' })
             }
         });
     }
+    Vue.axios.get('http://localhost:3000/api/tipos-contenedores/', {
+        headers: {
+            'Authorization': `Bearer ${API_KEY}` 
+        }
+    }).
+    then((resp) => {
+        const { data } = resp.data;
+        this.tiposContenedores = data.map(obj => { return {label: obj.descripcion, value: obj.id} });
+    }).catch((error) => {
+        if (error.toString().includes("401")){
+            this.$router.push({ name: 'Login' })
+        }
+    });
   },
   methods: {
       volverAtras(e) {
-        this.$router.push({ name: 'Camiones' })
+        this.$router.push({ name: 'Contenedores' })
       },
       guardar(e) {
         const API_KEY = localStorage.access_token;
-        console.log(this.comp)
-        if(this.comp.id){
-            Vue.axios.put("http://localhost:3000/api/compania/" + this.comp.id, {
-                isActive: this.comp.isActive,
-                descripcion: this.comp.descripcion,
-                direccion: this.comp.direccion,
-                telefono: this.comp.telefono
+        if(this.cont.id){
+            Vue.axios.put("http://localhost:3000/api/contenedores/" + this.cont.id, {
+                isActive: this.cont.isActive,
+                descripcion: this.cont.descripcion,
+                direccion: this.cont.direccion,
+                gpsLatitude: this.cont.gpsLatitude,
+                gpsAltitude: this.cont.gpsAltitude
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}` 
@@ -198,7 +242,7 @@ export default {
             }).then((resp) => {
                 const { status, message, data } = resp.data
                 if (status && status == "success"){
-                    this.$router.push({ name: 'Companias' })
+                    this.$router.push({ name: 'Contenedores' })
                 }
             }).catch((error) => {
                 if (error.toString().includes("401")){
@@ -206,11 +250,12 @@ export default {
                 }
             });
         } else {
-            Vue.axios.post("http://localhost:3000/api/compania/", {
-                isActive: this.comp.isActive,
-                descripcion: this.comp.descripcion,
-                direccion: this.comp.direccion,
-                telefono: this.comp.telefono
+            Vue.axios.post("http://localhost:3000/api/contenedores/", {
+                isActive: this.cont.isActive,
+                descripcion: this.cont.descripcion,
+                direccion: this.cont.direccion,
+                gpsLatitude: this.cont.gpsLatitude,
+                gpsAltitude: this.cont.gpsAltitude
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}` 
@@ -218,7 +263,7 @@ export default {
             }).then((resp) => {
                 const { status, message, data } = resp.data
                 if (status && status == "success"){
-                    this.$router.push({ name: 'Companias' })
+                    this.$router.push({ name: 'Contenedeores' })
                 }
             }).catch((error) => {
                 if (error.toString().includes("401")){

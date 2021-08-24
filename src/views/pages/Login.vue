@@ -26,6 +26,13 @@
                   >
                     <template #prepend-content><CIcon name="cil-lock-locked"/></template>
                   </CInput>
+                  <CAlert
+                    color="danger"
+                    closeButton
+                    :show.sync="invalidPass"
+                  >
+                    Nombre de usuario o contraseña incorrecta!!!
+                  </CAlert>
                   <CRow>
                     <CCol col="6" class="text-left">
                       <CButton type="submit" color="primary" class="px-4">Acceder</CButton>
@@ -56,11 +63,15 @@ export default {
   data() {
     return {
       Username: "",
-      Password: ""
+      Password: "",
+      invalidPass: 0
     }
   },
   
   methods: {
+    countDownChanged (invalidPass) {
+      this.invalidPass = invalidPass
+    },
     login(e) { 
       try {
         const resp = Vue.axios.post("http://localhost:3000/api/auth/login", {
@@ -69,10 +80,14 @@ export default {
         }).then((resp) => {
           const { status, message, data } = resp.data
           if (status && status == "success"){
-            const API_KEY = this.$cookies.get("CDS_BACKEND_API");
-            console.warn(API_KEY)
             localStorage.setItem('access_token', data.access_token)
             this.$router.push({ name: 'Home' })
+          } else {
+            this.invalidPass = 10;
+          }
+        }).catch((error) => {
+          if (error.toString().includes("401")){
+            this.invalidPass = 3;
           }
         });
       } catch(error) {

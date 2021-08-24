@@ -1,13 +1,12 @@
 <template>
-  <div>
+      <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañias</h3>
+        <h3>Dispositivos IoT</h3>
       </div>
       <div class="card-body">
-      
         <div align="right">
-          <CButton align="justify-center" shape="pill" color="info" @click="createCompany">
+          <CButton align="justify-center" shape="pill" color="info" @click="createDispositivo">
             <CIcon name="cil-plus"/>
           </CButton>
         </div>
@@ -57,13 +56,12 @@
 
 <script>
 import Vue from 'vue';
-
 const items = [
 ]
 
 const fields = [
-  { key: 'descripcion', label: "Nombre Compañia", _style:'min-width:200px' },
-  { key: 'telefono', _style:'min-width:100px;' },
+  { key: 'noSerie', label: "Serie Dispositivo", _style:'min-width:200px' },
+  { key: 'fechaUltimaLectura', label: "Fecha Ultima Lectura Sensor", _style:'min-width:100px;' },
   { key: 'isActive', label: "Estatus", _style:'min-width:100px;' },
   { 
     key: 'show_details', 
@@ -75,26 +73,26 @@ const fields = [
 ]
 
 export default {
-  name: 'Compañias',
+  name: 'Dispositivos',
   data() {
     return {
       items: items.map((item, id) => { return {...item, id}}),
       fields,
       details: [],
       collapseDuration: 0,
-      companias: undefined
+      dispositivos: undefined
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
-    Vue.axios.get('http://localhost:3000/api/compania/', {
+    Vue.axios.get('http://localhost:3000/api/dispositivos-iot/', {
       headers: {
         'Authorization': `Bearer ${API_KEY}` 
       }
     }).
     then((resp) => {
-      this.companias = resp.data.data
-      this.items = resp.data.data
+      this.dispositivos = resp.data.data
+      this.items = resp.data.data.map(obj => { return { id: obj.id, noSerie: obj.noSerie, isActive: obj.isActive, fechaUltimaLectura: obj.lecturas[0].createDateTime } })
     }).catch((error) => {
       if (error.toString().includes("401")){
         this.$router.push({ name: 'Login' })
@@ -110,11 +108,11 @@ export default {
       }
     },
     viewDetails (item) {
-      this.$router.push(`/mantenimientos/companias-detail/${item.id}`)
+      this.$router.push(`/mantenimientos/dispositivos-iot-detail/${item.id}`)
     },
     del (item) {
       const API_KEY = localStorage.access_token;
-      Vue.axios.delete('http://localhost:3000/api/compania/' + item.id, {
+      Vue.axios.delete('http://localhost:3000/api/dispositivos-iot/' + item.id, {
         headers: {
           'Authorization': `Bearer ${API_KEY}` 
         }
@@ -127,8 +125,8 @@ export default {
         }
       });
     },
-    createCompany(){
-      this.$router.push(`/mantenimientos/companias-detail/${"new"}`)
+    createDispositivo(){
+      this.$router.push(`/mantenimientos/dispositivos-iot-detail/${"new"}`)
     }
 
   }

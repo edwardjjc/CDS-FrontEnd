@@ -2,15 +2,9 @@
   <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañias</h3>
+        <h3>Historial de Rutas</h3>
       </div>
       <div class="card-body">
-      
-        <div align="right">
-          <CButton align="justify-center" shape="pill" color="info" @click="createCompany">
-            <CIcon name="cil-plus"/>
-          </CButton>
-        </div>
         <CDataTable
           :items="items"
           :fields="fields"
@@ -36,20 +30,24 @@
                 size="sm"
                 @click="viewDetails(item, index)"
               >
-                <CIcon name="cil-pencil"/>
-              </CButton>
-              <CButton
-                color="danger"
-                variant="outline"
-                square
-                size="sm"
-                @click="del(item, index)"
-              >
-                <CIcon name="cil-x"/>
+                <CIcon name="cil-truck"/>
               </CButton>
             </td>
           </template>
         </CDataTable>
+      </div>
+      <div>
+        <CCard>
+          <CCardHeader>
+            <CIcon name="cil-justify-center"/>
+            <strong> Ruta A Seguir </strong>
+          </CCardHeader>
+          <CCardBody>
+            <CListGroup sm="6" >
+              <CListGroupItem v-for="rutaContenedor in rutasContenedores" :key="rutaContenedor.id">{{rutaContenedor.orden}} - {{rutaContenedor.contenedor.descripcion}} - {{rutaContenedor.contenedor.direccion}}</CListGroupItem>
+            </CListGroup>
+          </CCardBody>
+        </CCard>
       </div>
     </div>
   </div>
@@ -62,8 +60,10 @@ const items = [
 ]
 
 const fields = [
-  { key: 'descripcion', label: "Nombre Compañia", _style:'min-width:200px' },
-  { key: 'telefono', _style:'min-width:100px;' },
+  { key: 'camion', label: "Camion", _style:'min-width:200px' },
+  { key: 'marca', label: "Marca", _style:'min-width:200px' },
+  { key: 'placa', label: "Placa", _style:'min-width:200px' },
+  { key: 'fechaRuta', _style:'min-width:100px;' },
   { key: 'isActive', label: "Estatus", _style:'min-width:100px;' },
   { 
     key: 'show_details', 
@@ -75,26 +75,27 @@ const fields = [
 ]
 
 export default {
-  name: 'Compañias',
+  name: 'Historial',
   data() {
     return {
       items: items.map((item, id) => { return {...item, id}}),
       fields,
       details: [],
       collapseDuration: 0,
-      companias: undefined
+      rutas: undefined,
+      rutasContenedores: []
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
-    Vue.axios.get('http://localhost:3000/api/compania/', {
+    Vue.axios.get('http://localhost:3000/api/rutas/history/', {
       headers: {
         'Authorization': `Bearer ${API_KEY}` 
       }
     }).
     then((resp) => {
-      this.companias = resp.data.data
-      this.items = resp.data.data
+      this.rutas = resp.data.data
+      this.items = resp.data.data.map(obj => { return { id: obj.id, camion: obj.camion.descripcion, marca: obj.camion.marca, placa: obj.camion.identificadorUnico, fechaRuta: obj.createDateTime, isActive: obj.isActive } })
     }).catch((error) => {
       if (error.toString().includes("401")){
         this.$router.push({ name: 'Login' })
@@ -110,27 +111,20 @@ export default {
       }
     },
     viewDetails (item) {
-      this.$router.push(`/mantenimientos/companias-detail/${item.id}`)
-    },
-    del (item) {
       const API_KEY = localStorage.access_token;
-      Vue.axios.delete('http://localhost:3000/api/compania/' + item.id, {
+      Vue.axios.get(`http://localhost:3000/api/rutas/detail/${item.id}`, {
         headers: {
           'Authorization': `Bearer ${API_KEY}` 
         }
       }).
       then((resp) => {
-        location.reload();
+        this.rutasContenedores = resp.data.data.rutasContenedores
       }).catch((error) => {
         if (error.toString().includes("401")){
           this.$router.push({ name: 'Login' })
         }
       });
-    },
-    createCompany(){
-      this.$router.push(`/mantenimientos/companias-detail/${"new"}`)
     }
-
   }
 }
 </script>

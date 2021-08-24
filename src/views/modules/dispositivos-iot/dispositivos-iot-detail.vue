@@ -2,32 +2,32 @@
   <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañia</h3>
+        <h3>Dispositivo IoT</h3>
       </div>
       <div class="card-body">
         <CCard>
-            <CCardHeader>
-                <CRow>
-                    <CCol sm="6">
-                        <strong>Datos</strong>
-                    </CCol>
-                    <CCol sm="6">
-                        <CInput
-                            v-model="comp.id"
-                            horizontal
-                            plaintext
-                            align="right"
-                        />
-                    </CCol>
-                </CRow>
-            </CCardHeader>
-            <CCardBody>
-                <CForm @submit="guardar">
+            <CForm @submit="guardar">
+                <CCardHeader>
+                    <CRow>
+                        <CCol sm="6">
+                            <strong>Datos</strong>
+                        </CCol>
+                        <CCol sm="6">
+                            <CInput
+                                v-model="disp.id"
+                                horizontal
+                                plaintext
+                                align="right"
+                            />
+                        </CCol>
+                    </CRow>
+                </CCardHeader>
+                <CCardBody>
                     <CRow>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.descripcion"
-                                label="Nombre de la compañia"
+                                v-model="disp.noSerie"
+                                label="Numero de Serie"
                                 horizontal
                                 autocomplete="name"
                             />
@@ -37,7 +37,7 @@
                                 </CCol>
                                 <CCol sm="9">
                                     <CSwitch
-                                        :checked.sync="comp.isActive"
+                                        :checked.sync="disp.isActive"
                                         class="mr-1"
                                         color="info"
                                         shape="pill"
@@ -47,31 +47,48 @@
                             </CRow>
                         </CCol>
                         <CCol sm="6">
-                            <CInput
-                                v-model="comp.telefono"
-                                label="Telefono de la compañia"
+                            <CSelect
+                                :value.sync="disp.contenedor.id"
+                                :options="contenedores"
+                                label="Tipo Contenedor"
                                 horizontal
                                 autocomplete="name"
                             />
+                            <CButton 
+                                size="sm5" 
+                                color="info" 
+                                shape="square" 
+                                variant="outline"
+                                @click="verLecturas">
+                                Ver Lecturas
+                            </CButton>
                         </CCol>
                     </CRow>
-                    <CTextarea
-                        v-model="comp.direccion"
-                        label="Direccion"
-                        placeholder="Content..."
-                        horizontal
-                        rows="3"
-                    />
+                </CCardBody>
+                <CCardFooter>
                     <CButton type="submit" size="sm" color="primary">
-                        <CIcon name="cil-check-circle"/> Submit
+                        <CIcon name="cil-check-circle"/> Guardar
                     </CButton>
                     <CButton size="sm" color="danger" @click="volverAtras">
                         <CIcon name="cil-ban"/> Cancelar
                     </CButton>
-                </CForm>
-            </CCardBody>
-            <CCardFooter>
-            </CCardFooter>
+                </CCardFooter>
+            </CForm>
+            <CModal
+                title="Lecturas"
+                :show.sync="lecturasModal"
+                size="xl"
+            >
+                <CDataTable
+                    :items="items"
+                    :fields="fields"
+                    items-per-page-select
+                    :items-per-page="5"
+                    sorter
+                    hover
+                    pagination>
+                </CDataTable>
+            </CModal>
         </CCard>
         <CCard>
             <CButton
@@ -88,13 +105,13 @@
                     <CRow>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.createdBy"
+                                v-model="disp.createdBy"
                                 label="Creador"
                                 horizontal
                                 plaintext
                             />
                             <CInput
-                                v-model="comp.lastChangedBy"
+                                v-model="disp.lastChangedBy"
                                 label="Ultima Modificacion"
                                 horizontal
                                 plaintext
@@ -102,24 +119,25 @@
                         </CCol>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.createDateTime"
+                                v-model="disp.createDateTime"
                                 label="Fecha Creacion"
-                                type="date"
                                 horizontal
+                                plaintext
                             />
                             <CInput
-                                v-model="comp.lastChangedDateTime"
+                                v-model="disp.lastChangedDateTime"
                                 label="Fecha Ultima Modificacion"
-                                type="date"
                                 horizontal
+                                plaintext
                             />
                         </CCol>
                     </CRow>
                     <CTextarea
-                        v-model="comp.internalComment"
+                        v-model="disp.internalComment"
                         label="Comentarios"
-                        placeholder="Content..."
+                        placeholder=""
                         horizontal
+                        plaintext
                         rows="2"
                     />
                     <CRow form class="form-group">
@@ -130,7 +148,8 @@
                             <CSwitch
                                 class="mr-1"
                                 color="info"
-                                :checked="comp.isArchived"
+                                disabled="true"
+                                :checked="disp.isArchived"
                                 shape="pill"
                                 variant="outline"
                             />
@@ -146,51 +165,94 @@
 
 <script>
 import Vue from 'vue';
+let contenedores=[];
+const items = [
+]
+
+const fields = [
+  { key: 'noSerie', label: "Serie Dispositivo", _style:'min-width:200px' },
+  { key: 'tipoSensor', label: "Tipo Sensor", _style:'min-width:200px' },
+  { key: 'fechaLectura', label: "Fecha Lectura", _style:'min-width:100px;' },
+  { key: 'lectura', label: "Valor", _style:'min-width:100px;' }
+]
 export default {
-  name: 'Companias-Detail',
+  name: 'Dispositivo-Detail',
   data () {
     return {
+      lecturasModal: false,
       collapse: false,
       cardCollapse: false,
       innerCollapse: false,
       accordion: 0,
-      comp: {}
+      disp: {},
+      items: items.map((item, id) => { return {...item, id}}),
+      fields,
+      contenedores: contenedores.map((obj) => { return {label: obj.descripcion, value: obj.id} })
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
     const id = this.$route.params.id;
     if (id == "new"){
-        this.comp = {};
+        this.cont = { contenedor: { id: "" } };
     } else {
-        Vue.axios.get('http://localhost:3000/api/compania/' + id, {
+        Vue.axios.get('http://localhost:3000/api/dispositivos-iot/' + id, {
             headers: {
                 'Authorization': `Bearer ${API_KEY}` 
             }
         }).
         then((resp) => {
             const { data } = resp.data;
-            this.comp = data;
+            this.disp = data;
         }).catch((error) => {
             if (error.toString().includes("401")){
             this.$router.push({ name: 'Login' })
             }
         });
     }
+    Vue.axios.get('http://localhost:3000/api/contenedores/', {
+        headers: {
+            'Authorization': `Bearer ${API_KEY}` 
+        }
+    }).
+    then((resp) => {
+        const { data } = resp.data;
+        this.contenedores = data.map(obj => { return {label: obj.descripcion, value: obj.id} });
+    }).catch((error) => {
+        if (error.toString().includes("401")){
+            this.$router.push({ name: 'Login' })
+        }
+    });
   },
   methods: {
       volverAtras(e) {
-        this.$router.push({ name: 'Camiones' })
+        this.$router.push({ name: 'Dispositivos' });
+      },
+      verLecturas(e) {
+        const API_KEY = localStorage.access_token;
+        Vue.axios.get('http://localhost:3000/api/lecturas/' + this.disp.noSerie, {
+            headers: {
+                'Authorization': `Bearer ${API_KEY}` 
+            }
+        }).
+        then((resp) => {
+            const { data } = resp.data;
+            this.items = data.map(obj => { return {noSerie: obj.dispositivoIoT.noSerie, tipoSensor: obj.tipoSensor.descripcion, fechaLectura: obj.createDateTime, lectura: obj.lectura} });
+        }).catch((error) => {
+            if (error.toString().includes("401")){
+                this.$router.push({ name: 'Login' })
+            }
+        });
+        this.lecturasModal = true;
       },
       guardar(e) {
         const API_KEY = localStorage.access_token;
-        console.log(this.comp)
-        if(this.comp.id){
-            Vue.axios.put("http://localhost:3000/api/compania/" + this.comp.id, {
-                isActive: this.comp.isActive,
-                descripcion: this.comp.descripcion,
-                direccion: this.comp.direccion,
-                telefono: this.comp.telefono
+        console.log(this.disp)
+        if(this.disp.id){
+            Vue.axios.put("http://localhost:3000/api/dispositivos-iot/" + this.disp.id, {
+                isActive: this.disp.isActive,
+                noSerie: this.disp.noSerie,
+                contenedor: this.disp.contenedor.id
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}` 
@@ -198,19 +260,18 @@ export default {
             }).then((resp) => {
                 const { status, message, data } = resp.data
                 if (status && status == "success"){
-                    this.$router.push({ name: 'Companias' })
+                    this.$router.push({ name: 'Dispositivos' })
                 }
             }).catch((error) => {
                 if (error.toString().includes("401")){
-                this.$router.push({ name: 'Login' })
+                    this.$router.push({ name: 'Login' })
                 }
             });
         } else {
-            Vue.axios.post("http://localhost:3000/api/compania/", {
-                isActive: this.comp.isActive,
-                descripcion: this.comp.descripcion,
-                direccion: this.comp.direccion,
-                telefono: this.comp.telefono
+            Vue.axios.post("http://localhost:3000/api/dispositivos-iot/", {
+                isActive: this.disp.isActive,
+                noSerie: this.disp.noSerie,
+                contenedor: this.disp.contenedor.id
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}` 
@@ -218,7 +279,7 @@ export default {
             }).then((resp) => {
                 const { status, message, data } = resp.data
                 if (status && status == "success"){
-                    this.$router.push({ name: 'Companias' })
+                    this.$router.push({ name: 'Dispositivos' })
                 }
             }).catch((error) => {
                 if (error.toString().includes("401")){

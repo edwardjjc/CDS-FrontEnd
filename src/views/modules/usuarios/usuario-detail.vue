@@ -2,32 +2,39 @@
   <div>
     <div class="card">
       <div class="card-header">
-        <h3>Compañia</h3>
+        <h3>Usuario</h3>
       </div>
       <div class="card-body">
         <CCard>
-            <CCardHeader>
-                <CRow>
-                    <CCol sm="6">
-                        <strong>Datos</strong>
-                    </CCol>
-                    <CCol sm="6">
-                        <CInput
-                            v-model="comp.id"
-                            horizontal
-                            plaintext
-                            align="right"
-                        />
-                    </CCol>
-                </CRow>
-            </CCardHeader>
-            <CCardBody>
-                <CForm @submit="guardar">
+            <CForm @submit="guardar">
+                <CCardHeader>
+                    <CRow>
+                        <CCol sm="6">
+                            <strong>Datos</strong>
+                        </CCol>
+                        <CCol sm="6">
+                            <CInput
+                                v-model="usr.id"
+                                horizontal
+                                plaintext
+                                align="right"
+                            />
+                        </CCol>
+                    </CRow>
+                </CCardHeader>
+                <CCardBody>
                     <CRow>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.descripcion"
-                                label="Nombre de la compañia"
+                                v-model="usr.username"
+                                label="Usuario"
+                                horizontal
+                                autocomplete="name"
+                            />
+                            <CInput
+                                v-model="usr.password"
+                                label="Password"
+                                type="password"
                                 horizontal
                                 autocomplete="name"
                             />
@@ -37,7 +44,7 @@
                                 </CCol>
                                 <CCol sm="9">
                                     <CSwitch
-                                        :checked.sync="comp.isActive"
+                                        :checked.sync="usr.isActive"
                                         class="mr-1"
                                         color="info"
                                         shape="pill"
@@ -48,30 +55,30 @@
                         </CCol>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.telefono"
-                                label="Telefono de la compañia"
+                                v-model="usr.email"
+                                label="Email"
+                                horizontal
+                                autocomplete="name"
+                            />
+                            <CSelect
+                                :value.sync="usr.perfil.id"
+                                :options="perfiles"
+                                label="Perfil"
                                 horizontal
                                 autocomplete="name"
                             />
                         </CCol>
                     </CRow>
-                    <CTextarea
-                        v-model="comp.direccion"
-                        label="Direccion"
-                        placeholder="Content..."
-                        horizontal
-                        rows="3"
-                    />
+                </CCardBody>
+                <CCardFooter>
                     <CButton type="submit" size="sm" color="primary">
-                        <CIcon name="cil-check-circle"/> Submit
+                        <CIcon name="cil-check-circle"/> Guardar
                     </CButton>
                     <CButton size="sm" color="danger" @click="volverAtras">
                         <CIcon name="cil-ban"/> Cancelar
                     </CButton>
-                </CForm>
-            </CCardBody>
-            <CCardFooter>
-            </CCardFooter>
+                </CCardFooter>
+            </CForm>
         </CCard>
         <CCard>
             <CButton
@@ -88,13 +95,13 @@
                     <CRow>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.createdBy"
+                                v-model="usr.createdBy"
                                 label="Creador"
                                 horizontal
                                 plaintext
                             />
                             <CInput
-                                v-model="comp.lastChangedBy"
+                                v-model="usr.lastChangedBy"
                                 label="Ultima Modificacion"
                                 horizontal
                                 plaintext
@@ -102,24 +109,25 @@
                         </CCol>
                         <CCol sm="6">
                             <CInput
-                                v-model="comp.createDateTime"
+                                v-model="usr.createDateTime"
                                 label="Fecha Creacion"
-                                type="date"
                                 horizontal
+                                plaintext
                             />
                             <CInput
-                                v-model="comp.lastChangedDateTime"
+                                v-model="usr.lastChangedDateTime"
                                 label="Fecha Ultima Modificacion"
-                                type="date"
                                 horizontal
+                                plaintext
                             />
                         </CCol>
                     </CRow>
                     <CTextarea
-                        v-model="comp.internalComment"
+                        v-model="usr.internalComment"
                         label="Comentarios"
-                        placeholder="Content..."
+                        placeholder=""
                         horizontal
+                        plaintext
                         rows="2"
                     />
                     <CRow form class="form-group">
@@ -130,7 +138,8 @@
                             <CSwitch
                                 class="mr-1"
                                 color="info"
-                                :checked="comp.isArchived"
+                                disabled="true"
+                                :checked="usr.isArchived"
                                 shape="pill"
                                 variant="outline"
                             />
@@ -146,71 +155,67 @@
 
 <script>
 import Vue from 'vue';
+let perfiles=[];
 export default {
-  name: 'Companias-Detail',
+  name: 'Usuarios-Detail',
   data () {
     return {
       collapse: false,
       cardCollapse: false,
       innerCollapse: false,
       accordion: 0,
-      comp: {}
+      usr: {},
+      perfiles: perfiles.map((obj) => { return {label: obj.descripcion, value: obj.id} })
     }
   },
   mounted() {
     const API_KEY = localStorage.access_token;
     const id = this.$route.params.id;
     if (id == "new"){
-        this.comp = {};
+        this.usr = { perfil: { id: "" }};
     } else {
-        Vue.axios.get('http://localhost:3000/api/compania/' + id, {
+        Vue.axios.get('http://localhost:3000/api/usuarios/' + id, {
             headers: {
                 'Authorization': `Bearer ${API_KEY}` 
             }
         }).
         then((resp) => {
             const { data } = resp.data;
-            this.comp = data;
+            this.usr = data;
         }).catch((error) => {
             if (error.toString().includes("401")){
             this.$router.push({ name: 'Login' })
             }
         });
     }
+    Vue.axios.get('http://localhost:3000/api/usuarios/perfiles/', {
+        headers: {
+            'Authorization': `Bearer ${API_KEY}` 
+        }
+    }).
+    then((resp) => {
+        const { data } = resp.data;
+        this.perfiles = data.map(obj => { return {label: obj.descripcion, value: obj.id} });
+    }).catch((error) => {
+        if (error.toString().includes("401")){
+            this.$router.push({ name: 'Login' })
+        }
+    });
   },
   methods: {
       volverAtras(e) {
-        this.$router.push({ name: 'Camiones' })
+        this.$router.push({ name: 'Usuarios' })
       },
       guardar(e) {
         const API_KEY = localStorage.access_token;
-        console.log(this.comp)
-        if(this.comp.id){
-            Vue.axios.put("http://localhost:3000/api/compania/" + this.comp.id, {
-                isActive: this.comp.isActive,
-                descripcion: this.comp.descripcion,
-                direccion: this.comp.direccion,
-                telefono: this.comp.telefono
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${API_KEY}` 
-                }
-            }).then((resp) => {
-                const { status, message, data } = resp.data
-                if (status && status == "success"){
-                    this.$router.push({ name: 'Companias' })
-                }
-            }).catch((error) => {
-                if (error.toString().includes("401")){
-                this.$router.push({ name: 'Login' })
-                }
-            });
+        if(this.usr.id){
+
         } else {
-            Vue.axios.post("http://localhost:3000/api/compania/", {
-                isActive: this.comp.isActive,
-                descripcion: this.comp.descripcion,
-                direccion: this.comp.direccion,
-                telefono: this.comp.telefono
+            Vue.axios.post("http://localhost:3000/api/usuarios", {
+                username: this.usr.username,
+                password: this.usr.password,
+                perfil: this.usr.perfil,
+                email: this.usr.email
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}` 
@@ -218,11 +223,11 @@ export default {
             }).then((resp) => {
                 const { status, message, data } = resp.data
                 if (status && status == "success"){
-                    this.$router.push({ name: 'Companias' })
+                    this.$router.push({ name: 'Usuarios' })
                 }
             }).catch((error) => {
                 if (error.toString().includes("401")){
-                this.$router.push({ name: 'Login' })
+                    this.$router.push({ name: 'Login' })
                 }
             });
         }
