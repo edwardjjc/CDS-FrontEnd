@@ -25,7 +25,7 @@
       />
     </CSidebarBrand>
 
-    <CRenderFunction flat :content-to-render="$options.nav"/>
+    <CRenderFunction flat :content-to-render="computedSidebar"/>
     <CSidebarMinimizer
       class="d-md-down-none"
       @click.native="$store.commit('set', ['sidebarMinimize', !minimize])"
@@ -34,12 +34,35 @@
 </template>
 
 <script>
-import nav from './_nav'
+import nav from './_nav';
+import jwt_decode from 'jwt-decode';
 
 export default {
   name: 'TheSidebar',
   nav,
+  data() {
+    return {
+    }
+  },
+  mounted() {
+    this.minimize = true;
+  },
   computed: {
+    currentItems() {
+      let jwtData = jwt_decode(localStorage.access_token);
+      console.log(jwtData.aud);
+      return nav[0]._children.filter(item => {
+        return !item.roles || item.roles.includes(jwtData.aud);
+      });
+    },
+    computedSidebar() {
+      return [
+        {
+          _name: "CSidebarNav",
+          _children: this.currentItems
+        }
+      ];
+    },
     show () {
       return this.$store.state.sidebarShow 
     },

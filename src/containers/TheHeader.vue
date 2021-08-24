@@ -46,7 +46,7 @@
           <CIcon name="cil-envelope-open"/>
         </CHeaderNavLink> -->
       </CHeaderNavItem>
-      <p>Bienvenido {{username}}!!!</p>
+      <p class="d-md-down-none mx-2">Bienvenido {{username}}!!!</p>
       <TheHeaderDropdownAccnt/>
     </CHeaderNav>
 <!--     <CSubheader class="px-3">

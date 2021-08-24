@@ -15,6 +15,8 @@ const Companias = () => import('@/views/modules/companias/companias')
 const CompaniaDetail = () => import('@/views/modules/companias/compania-detail')
 const Contenedores = () => import('@/views/modules/contenedores/contenedores')
 const ContenedoresDetail = () => import('@/views/modules/contenedores/contenedor-detail')
+const TiposContenedores = () => import('@/views/modules/tipos-contenedores/tipos-contenedores')
+const TiposContenedoresDetail = () => import('@/views/modules/tipos-contenedores/tipos-contenedores-detail')
 const Dispositivos = () => import('@/views/modules/dispositivos-iot/dispositivos-iot')
 const DispositivosDetail = () => import('@/views/modules/dispositivos-iot/dispositivos-iot-detail')
 const Usuarios = () => import('@/views/modules/usuarios/usuarios')
@@ -152,6 +154,16 @@ function configRoutes () {
               path: 'contenedores-detail/:id',
               name: 'Contenedor',
               component: ContenedoresDetail
+            },
+            {
+              path: 'tipos-contenedores',
+              name: 'TiposContenedores',
+              component: TiposContenedores
+            },
+            {
+              path: 'tipos-contenedores-detail/:id',
+              name: 'TiposContenedoresDetail',
+              component: TiposContenedoresDetail
             },
             {
               path: 'dispositivos-iot',

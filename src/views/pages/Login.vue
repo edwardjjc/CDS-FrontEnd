@@ -67,7 +67,9 @@ export default {
       invalidPass: 0
     }
   },
-  
+  mounted() {
+    localStorage.setItem('access_token', '');
+  },
   methods: {
     countDownChanged (invalidPass) {
       this.invalidPass = invalidPass

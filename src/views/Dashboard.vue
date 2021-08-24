@@ -120,6 +120,9 @@ export default {
     then((resp) => {
       const { data } = resp.data;
       this.cantidadContenedores = data.filter(f => f.isActive == true).length.toString();
+      if(this.contenedoresRecolectables.length > 0){
+        this.contenedoresRecolectables = [];
+      }
       this.contenedoresRecolectables.push(data.filter(f => f.pendienteRecoleccion == true).length);
       this.contenedoresRecolectables.push(data.filter(f => f.pendienteRecoleccion == false).length);
     }).catch((error) => {

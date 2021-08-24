@@ -1,7 +1,3 @@
-import jwt_decode from 'jwt-decode';
-
-let jwtData = jwt_decode(localStorage.access_token);
-
 export default [
   {
     _name: 'CSidebarNav',
@@ -17,6 +13,7 @@ export default [
         name: 'Rutas',
         route: '/',
         icon: 'cil-terrain',
+        roles: [ "Administrator", "Operador"],
         items: [
           {
             _name: 'CSidebarNavItem',
@@ -39,6 +36,7 @@ export default [
         name: 'Mantenimientos',
         route: '/',
         icon: 'cil-list',
+        roles: [ "Administrator", "Operador"],
         items: [
           {
             _name: 'CSidebarNavItem',
@@ -63,6 +61,13 @@ export default [
           },
           {
             _name: 'CSidebarNavItem',
+            name: 'Tipos Contenedores',
+            color: "dark",
+            to: '/mantenimientos/tipos-contenedores',
+            icon: 'cil-line-weight'
+          },
+          {
+            _name: 'CSidebarNavItem',
             name: 'DispositivosIoT',
             color: "dark",
             to: '/mantenimientos/dispositivos-iot',
@@ -75,6 +80,7 @@ export default [
         name: 'Seguridad',
         route: '/',
         icon: 'cil-lock-locked',
+        roles: [ "Administrator", "Seguridad"],
         items: [
           {
             name: 'Usuarios',

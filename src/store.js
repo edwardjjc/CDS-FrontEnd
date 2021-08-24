@@ -4,12 +4,12 @@ Vue.use(Vuex)
 
 const state = {
   sidebarShow: 'responsive',
-  sidebarMinimize: false
+  sidebarMinimize: true
 }
 
 const mutations = {
   toggleSidebarDesktop (state) {
-    const sidebarOpened = [true, 'responsive'].includes(state.sidebarShow)
+    const sidebarOpened = [false, 'responsive'].includes(state.sidebarShow)
     state.sidebarShow = sidebarOpened ? false : 'responsive'
   },
   toggleSidebarMobile (state) {

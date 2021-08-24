@@ -8,10 +8,11 @@
     <template #toggler>
       <CHeaderNavLink>
         <div class="c-avatar">
-          <img
+          <!--<img
             src="img/avatars/6.jpg"
             class="c-avatar-img "
-          />
+          />-->
+          <CIcon name="cil-user" size="lg"/>
         </div>
       </CHeaderNavLink>
     </template>
@@ -59,7 +60,7 @@
     <CDropdownItem>
       <CIcon name="cil-shield-alt" /> Lock Account
     </CDropdownItem> -->
-    <CDropdownItem>
+    <CDropdownItem @click="cerrarSesion">
       <CIcon name="cil-lock-locked" /> Cerrar sesion
     </CDropdownItem>
   </CDropdown>
@@ -72,6 +73,12 @@ export default {
     return { 
       itemsCount: 42
     }
+  },
+  methods: {
+   cerrarSesion() {
+    localStorage.setItem('access_token', '');
+    this.$router.push({ name: 'Login' });
+   } 
   }
 }
 </script>

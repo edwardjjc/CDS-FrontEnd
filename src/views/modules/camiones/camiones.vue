@@ -16,6 +16,7 @@
           table-filter
           items-per-page-select
           :items-per-page="5"
+          :key="contador"
           hover
           pagination
         >
@@ -42,13 +43,31 @@
                 variant="outline"
                 square
                 size="sm"
-                @click="del(item, index)"
+                @click="confirmarI(item, index)"
               >
                 <CIcon name="cil-x"/>
               </CButton>
             </td>
           </template>
         </CDataTable>
+        <CModal
+          :show.sync="confirmacion"
+          :no-close-on-backdrop="true"
+          :centered="true"
+          title="Confirmacion"
+          size="sm"
+          color="dark"
+        >
+          Seguro que desea desactivar el camion?
+          <template #header>
+            <h6 class="modal-title">Confirmacion</h6>
+            <CButtonClose @click="confirmacion = false" class="text-white"/>
+          </template>
+          <template #footer>
+            <CButton @click="confirmacion = false" color="danger">Cancelar</CButton>
+            <CButton @click="del" color="success">Aceptar</CButton>
+          </template>
+        </CModal>
       </div>
     </div>
   </div>
@@ -84,6 +103,9 @@ export default {
       fields,
       details: [],
       collapseDuration: 0,
+      confirmacion: false,
+      contador: 0,
+      selectedCamionId: "",
       camiones: undefined,
       companias: undefined,
       tiposCamiones: undefined
@@ -117,18 +139,37 @@ export default {
     viewDetails (item) {
       this.$router.push(`/mantenimientos/camiones-detail/${item.id}`)
     },
-    del (item) {
+    confirmarI (item) {
+      this.confirmacion = true;
+      this.selectedCamionId = item.id;
+    },
+    del () {
       const API_KEY = localStorage.access_token;
-      Vue.axios.delete('http://localhost:3000/api/camiones/' + item.id, {
+      Vue.axios.delete('http://localhost:3000/api/camiones/' + this.selectedCamionId, {
         headers: {
           'Authorization': `Bearer ${API_KEY}` 
         }
       }).
       then((resp) => {
-        location.reload();
+        Vue.axios.get('http://localhost:3000/api/camiones/', {
+          headers: {
+            'Authorization': `Bearer ${API_KEY}` 
+          }
+        }).
+        then((resp) => {
+          const { data } = resp.data;
+          this.camiones = data
+          this.items = data.map(obj => { return { id: obj.id, descripcion: obj.descripcion, marca: obj.marca, modelo: obj.modelo, placa: obj.identificadorUnico, color: obj.color, tipoCamion: obj.tipoCamion.descripcion, isActive: obj.isActive } })
+          this.confirmacion = false;
+          this.contador += 1;
+        }).catch((error) => {
+          if (error.toString().includes("401")){
+            this.$router.push({ name: 'Login' })
+          }
+        });
       }).catch((error) => {
         if (error.toString().includes("401")){
-          this.$router.push({ name: 'Login' })
+          this.$router.push({ name: 'Login' });
         }
       });
     },
